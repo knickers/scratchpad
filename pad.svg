@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+	<path
+		style="fill:none;stroke:#ff9500;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;"
+		d="
+			M 60,5
+			H 25
+			a 20,20 90 0 0 -20,20
+			v 50
+			a 20,20 90 0 0 20,20
+			h 50
+			a 20,20 90 0 0 20,-20
+			v -35
+			M 28,72
+			h 14
+			l 50,-50
+			a 7,7 180 0 0 -14,-14
+			l -50,50
+			v 14
+		"
+	></path>
+</svg>
