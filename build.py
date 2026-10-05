@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 from pathlib import Path
 import argparse
 import re
@@ -38,38 +39,44 @@ def minify_html(html: str) -> str:
 	return html.strip()
 
 
-def build(html_path: Path, svg_path: Path, out_path: Path) -> None:
-	source = html_path.read_text(encoding='utf-8')
-	svg = minify_svg(svg_path.read_text(encoding='utf-8'))
+def build(args) -> None:
+	source = args.html.read_text(encoding='utf-8')
 
 	if MARKER not in source:
-		raise SystemExit(f'Marker {MARKER!r} not found in {html_path}')
+		raise SystemExit(f'Marker {MARKER!r} not found in {args.html}')
 
-	# First encoding layer: valid SVG data URL.
-	svg_uri = 'data:image/svg+xml,' + quote(svg, safe='-._~')
+	if args.embed:
+		favicon = minify_svg(args.svg.read_text(encoding='utf-8'))
 
-	# The SVG URI lives inside an outer HTML data: URL. Escape '%' once more so
-	# the outer URL decode leaves the inner SVG URI's percent escapes intact.
-	nested_svg_uri = svg_uri.replace('%', '%25')
-	favicon = f'<link rel="icon" href="{nested_svg_uri}">'
-	source = source.replace(MARKER, favicon, 1)
+		# First encoding layer: valid SVG data URL.
+		favicon = 'data:image/svg+xml,' + quote(favicon, safe='-._~')
 
-	if source.startswith(DATA_PREFIX):
-		result = DATA_PREFIX + minify_html(source[len(DATA_PREFIX):])
+		# The SVG URI lives inside an outer HTML data: URL. Escape '%' once more so
+		# the outer URL decode leaves the inner SVG URI's percent escapes intact.
+		favicon = favicon.replace('%', '%25')
 	else:
-		result = minify_html(source)
+		# Relative path from `html_path` to `svg_path`
+		favicon = Path(os.path.relpath(args.svg, args.html.parent))
 
-	out_path.write_text(result + '\n', encoding='utf-8')
-	print(f'Wrote {len(result)} bytes to {out_path}')
+	source = source.replace(MARKER, str(favicon), 1)
+
+	if args.embed:
+		source = 'data:text/html;charset=utf-8,\n' + source
+	else:
+		source = '<!doctype html>\n' + source
+
+	args.out.write_text(source, encoding='utf-8')
+	print(f'Wrote {len(source)} bytes to {args.out}')
 
 
 def main() -> None:
 	parser = argparse.ArgumentParser(description='Build the minified Pad bookmark HTML.')
-	parser.add_argument('html', nargs='?', default='pad.html', type=Path)
-	parser.add_argument('svg', nargs='?', default='pad.svg', type=Path)
-	parser.add_argument('output', nargs='?', default='pad.min.html', type=Path)
+	parser.add_argument('--embed', action='store_true')
+	parser.add_argument('--html', default='pad.tpl', type=Path)
+	parser.add_argument('--svg', default='pad.svg', type=Path)
+	parser.add_argument('out', nargs='?', default='pad.html', type=Path)
 	args = parser.parse_args()
-	build(args.html, args.svg, args.output)
+	build(args)
 
 
 if __name__ == '__main__':

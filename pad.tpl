@@ -1,7 +1,6 @@
-<!doctype html>
 <html lang="en">
 	<title>Pad</title>
-	<link rel="icon" href="pad.svg">
+	<link rel="icon" href="{{favicon}}">
 	<style>
 		* { box-sizing: border-box; }
 		html {
