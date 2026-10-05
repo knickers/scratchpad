@@ -70,11 +70,11 @@ def build(args) -> None:
 
 
 def main() -> None:
-	parser = argparse.ArgumentParser(description='Build the minified Pad bookmark HTML.')
+	parser = argparse.ArgumentParser(description='Build the scratchpad and embedable bookmark HTML.')
 	parser.add_argument('--embed', action='store_true')
-	parser.add_argument('--html', default='pad.tpl', type=Path)
-	parser.add_argument('--svg', default='pad.svg', type=Path)
-	parser.add_argument('out', nargs='?', default='pad.html', type=Path)
+	parser.add_argument('--html', default='scratchpad.tpl', type=Path)
+	parser.add_argument('--svg', default='scratchpad.svg', type=Path)
+	parser.add_argument('out', nargs='?', default='scratchpad.html', type=Path)
 	args = parser.parse_args()
 	build(args)
 
